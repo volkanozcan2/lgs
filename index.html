@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geri Sayım - 15 Haziran 2025</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+
+
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Roboto Mono", monospace;
+            font-optical-sizing: auto;
+            font-weight: Bold 700;
+            font-style: Bold 700;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a1c4fd);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        h1 {
+            text-shadow: 1px 1px 1px #000000;
+            font-size: 2em;
+            margin-bottom: 1em;
+        }
+
+        #countdown {
+            text-shadow: 1px 1px 1px #000000;
+            font-size: 10em;
+        }
+
+        #quote {
+            margin-top: 2em;
+            font-size: 1.2em;
+            max-width: 600px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>15 Haziran 2025'e Geri Sayım</h1>
+    <div id="countdown"></div>
+    <div id="quote"></div>
+
+    <script>
+        const countdownEl = document.getElementById('countdown');
+        const quoteEl = document.getElementById('quote');
+
+        function updateCountdown() {
+            const targetDate = new Date("2025-06-15T06:30:00Z");
+            const now = new Date();
+            const diff = targetDate - now;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            countdownEl.textContent = `${days}g ${hours}s ${minutes}d ${seconds}sn`;
+        }
+
+        const quotes = {
+            "2025-05-06": "Bugün yaptığın, yarın olacağın kişiyi belirler.",
+            "2025-05-07": "Disiplin, başarının yakıtıdır.",
+            "2025-05-08": "Zor zamanlar, güçlü insanlar yaratır.",
+            "2025-05-09": "Kendine inandığın an başlarsın.",
+            "2025-05-10": "Başarı, hazır olanı bulur.",
+            // İstediğiniz kadar tarih ve söz ekleyebilirsiniz
+        };
+
+        function getTodayQuote() {
+            const today = new Date().toISOString().split('T')[0];
+            quoteEl.textContent = quotes[today] || "Bugünün sözü yakında yüklenecek...";
+        }
+
+        updateCountdown();
+        getTodayQuote();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+
+</html>
