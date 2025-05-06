@@ -25,6 +25,8 @@
             animation: gradientAnimation 15s ease infinite;
             text-align: center;
             color: var(--text-color);
+            position: relative;
+            overflow: hidden;
         }
 
         @keyframes gradientAnimation {
@@ -41,22 +43,64 @@
             }
         }
 
+        .emoji-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 60px);
+            grid-template-rows: repeat(auto-fill, 60px);
+            font-size: 2vw;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(5deg);
+            }
+
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+        }
+
+        .emoji-bg span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        h1,
+        #countdown,
+        #quote {
+            font-weight: bold;
+            width: 100%;
+            max-width: 95vw;
+        }
+
         h1 {
-            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            font-size: clamp(2rem, 10vw, 4rem);
             margin-bottom: 1em;
             text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
         }
 
         #countdown {
-            font-size: clamp(2rem, 6vw, 3rem);
+            font-size: clamp(2.5rem, 12vw, 5rem);
             text-shadow: 2px 2px 4px var(--shadow);
         }
 
         #quote {
             margin-top: 2em;
-            font-size: clamp(1rem, 4vw, 1.2rem);
-            max-width: 90vw;
-            color: var(--text-color);
+            font-size: clamp(1.2rem, 6vw, 2rem);
             text-shadow: 1px 1px 2px var(--shadow);
             word-wrap: break-word;
         }
@@ -64,6 +108,8 @@
 </head>
 
 <body>
+    <div class="emoji-bg" id="emojiBg"></div>
+
     <h1>15 Haziran 2025 - 09:30'a Geri Sayım</h1>
     <div id="countdown"></div>
     <div id="quote"></div>
@@ -71,6 +117,7 @@
     <script>
         const countdownEl = document.getElementById('countdown');
         const quoteEl = document.getElementById('quote');
+        const emojiBg = document.getElementById('emojiBg');
 
         function updateCountdown() {
             const targetDate = new Date("2025-06-15T06:30:00Z"); // Türkiye saatiyle 09:30
@@ -103,9 +150,28 @@
             quoteEl.textContent = quotes[today] || "Bugünün sözü yakında yüklenecek...";
         }
 
+        // Emoji background setup with animation
+        const emojis = ['📚', '🚀', '🧠', '💡', '✏️', '🎯', '🏆', '💪'];
+        const cols = Math.ceil(window.innerWidth / 60);
+        const rows = Math.ceil(window.innerHeight / 60);
+
+        for (let i = 0; i < cols * rows; i++) {
+            const span = document.createElement('span');
+            span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+            // Random animation delay and speed
+            const delay = Math.random() * 4; // seconds
+            const duration = 3 + Math.random() * 2; // 3–5s
+            span.style.animationDelay = `${delay}s`;
+            span.style.animationDuration = `${duration}s`;
+
+            emojiBg.appendChild(span);
+        }
+
         updateCountdown();
         getTodayQuote();
         setInterval(updateCountdown, 1000);
+    </script>
     </script>
 </body>
 
