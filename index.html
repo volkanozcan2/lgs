@@ -5,63 +5,137 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geri Sayım - 15 Haziran 2025</title>
+    <link
+        href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAA=="
+        rel="icon" type="image/x-icon">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
 
+        :root {
+            --text-color: #0b0404;
+            --shadow: rgba(0, 0, 0, 0.4);
+        }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: "Roboto Mono", monospace;
+            font-family: "Open Sans", sans-serif;
             font-optical-sizing: auto;
-            font-weight: Bold 700;
-            font-style: Bold 700;
-
+            font-style: normal;
+            margin: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a1c4fd);
+            min-height: 100vh;
+            background: white;
             background-size: 400% 400%;
             animation: gradientAnimation 15s ease infinite;
             text-align: center;
-            color: #ffffff;
+            color: var(--text-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .emoji-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 60px);
+            grid-template-rows: repeat(auto-fill, 60px);
+            font-size: 2vw;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(5deg);
+            }
+
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+        }
+
+        .emoji-bg span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        h1,
+        #countdown,
+        #quote {
+            font-weight: bold;
+            width: 100%;
+            max-width: 95vw;
         }
 
         h1 {
-            text-shadow: 1px 1px 1px #000000;
-            font-size: 2em;
+            font-size: clamp(2rem, 10vw, 4rem);
             margin-bottom: 1em;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
         }
 
         #countdown {
-            text-shadow: 1px 1px 1px #000000;
-            font-size: 12em;
+            font-size: clamp(2.5rem, 10vw, 5rem);
+            text-shadow: 2px 2px 4px var(--shadow);
         }
 
         #quote {
             margin-top: 2em;
-            font-size: 1.2em;
-            max-width: 600px;
+            font-size: clamp(1rem, 3vw, 2rem);
+            text-shadow: 1px 1px 2px var(--shadow);
+            word-wrap: break-word;
         }
     </style>
 </head>
 
 <body>
-    <h1>15 Haziran 2025'e Geri Sayım</h1>
+    <div class="emoji-bg" id="emojiBg"></div>
+
+    <h1>15 Haziran 2025 - 09:30'a Geri Sayım</h1>
     <div id="countdown"></div>
     <div id="quote"></div>
 
     <script>
         const countdownEl = document.getElementById('countdown');
         const quoteEl = document.getElementById('quote');
+        const emojiBg = document.getElementById('emojiBg');
 
         function updateCountdown() {
-            const targetDate = new Date("2025-06-15T06:30:00Z");
+            const targetDate = new Date("2025-06-15T06:30:00Z"); // Türkiye saatiyle 09:30
             const now = new Date();
             const diff = targetDate - now;
+
+            if (diff <= 0) {
+                countdownEl.textContent = "Sınav başladı! Başarılar!";
+                return;
+            }
 
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
@@ -102,6 +176,7 @@
         updateCountdown();
         getTodayQuote();
         setInterval(updateCountdown, 1000);
+    </script>
     </script>
 </body>
 
