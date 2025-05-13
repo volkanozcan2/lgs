@@ -71,18 +71,32 @@
             countdownEl.textContent = `${days}g ${hours}s ${minutes}d ${seconds}sn`;
         }
 
-        const quotes = {
-            "2025-05-06": "Bugün yaptığın, yarın olacağın kişiyi belirler.",
-            "2025-05-07": "Disiplin, başarının yakıtıdır.",
-            "2025-05-08": "Zor zamanlar, güçlü insanlar yaratır.",
-            "2025-05-09": "Kendine inandığın an başlarsın.",
-            "2025-05-10": "Başarı, hazır olanı bulur.",
-            // İstediğiniz kadar tarih ve söz ekleyebilirsiniz
-        };
+        const quotes = [
+            "Bugün yaptığın, yarın olacağın kişiyi belirler.",
+            "Disiplin, başarının yakıtıdır.",
+            "Zor zamanlar, güçlü insanlar yaratır.",
+            "Kendine inandığın an başlarsın.",
+            "Başarı, hazır olanı bulur.",
+            "Hayallerini gerçekleştirmek için çalışmalısın.",
+            "Başarı,başaracağım diye başlayıp sonunda başardım diyebilenindir.",
+            "Başarı,kendine olan inancın ve azmin birleşimidir.",
+            "Hedefi olmayan gemiye hiçbir rüzgar yardım edemez.",
+            "Hiçbir şeyden vazgeçme çünkü sadece vazgeçenler kaybeder.",
+            "Kaybettiğinde değil vazgeçtiğinde yenilirsin.",
+            "Fırsatlar durup dururken karşıya çıkmaz,onları siz yaratırsınız.",
+            "İnanmak başarmanın yarısıdır ancak başarı da kazanmanın kendisidir",
+            "Işık saçmak için önce yanmak gerekir.",
+            "Rüyaları gerçekleştirmek için uyanmak gerekir.",
+            "İleriye bakmak gerekir, geçmişe değil.",
+            "En büyük keşif, her gün yeniden başlamanın özgürlüğüdür.",
+            "Başlamak için mükemmel olmak zorunda değilsin fakat mükemmel olmak için başlamalısın.",
+            "İmkansıza ulaşmanın tek yolu, onun mümkün olduğuna inanmaktır.",
+            "Büyük zaferler güçle değil, azimle kazanılır.",
+            "Hiçkimse başarı merdivenlerini elleri cebinde tırmanmamıştır.", // İstediğiniz kadar tarih ve söz ekleyebilirsiniz
+        ]
 
         function getTodayQuote() {
-            const today = new Date().toISOString().split('T')[0];
-            quoteEl.textContent = quotes[today] || "Bugünün sözü yakında yüklenecek...";
+            quoteEl.textContent = quotes[~~(Math.random() * quotes.length)] || "Bugünün sözü yakında yüklenecek...";
         }
 
         updateCountdown();
