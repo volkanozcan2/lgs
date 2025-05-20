@@ -266,10 +266,25 @@
                 return { total, days, hours, minutes };
             }
 
+            let isClockMode = false;
+            let fadeAlpha = 1;
+
+            canvas.addEventListener('click', () => {
+                isClockMode = !isClockMode;
+            });
+
             function draw() {
                 ctx.fillStyle = 'black';
                 ctx.fillRect(0, 0, width, height);
 
+                // Fade logic
+                if (isClockMode && fadeAlpha > 0) {
+                    fadeAlpha = Math.max(0, fadeAlpha - 0.05);
+                } else if (!isClockMode && fadeAlpha < 1) {
+                    fadeAlpha = Math.min(1, fadeAlpha + 0.05);
+                }
+
+                // Draw stars with fade
                 for (let i = 0; i < numStars; i++) {
                     const star = stars[i];
                     star.z -= star.speed;
@@ -297,13 +312,16 @@
                     if (x >= 0 && x < width && y >= 0 && y < height) {
                         ctx.beginPath();
                         ctx.arc(x, y, star.r, 0, 2 * Math.PI);
-                        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(star.o, 1)})`;
+                        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(star.o, 1) * fadeAlpha})`;
                         ctx.fill();
                     }
                 }
 
                 const time = getTimeRemaining();
-                const countdown = `${time.days}g ${time.hours}s ${time.minutes}d`;
+                const now = new Date();
+                const displayText = isClockMode ?
+                    `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}` :
+                    `${time.days}g ${time.hours}s ${time.minutes}d`;
 
                 const fontSize = Math.max(width * 0.08, height * 0.08);
                 ctx.font = `bold ${fontSize}px 'Roboto Mono', monospace`;
@@ -312,46 +330,29 @@
 
                 ctx.lineWidth = fontSize * 0.05;
                 ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-                ctx.strokeText(countdown, width / 2, height / 2);
+                ctx.strokeText(displayText, width / 2, height / 2);
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-                ctx.fillText(countdown, width / 2, height / 2);
+                ctx.fillText(displayText, width / 2, height / 2);
 
-                const fadeSpeed = 0.04;
+                // Draw quote with fade
+                if (!isClockMode || fadeAlpha > 0) {
+                    const quoteFontSize = fontSize * 0.25;
+                    const baseY = height / 2 + fontSize * 0.7;
+                    const waveAmplitude = quoteFontSize * 0.8;
+                    const waveFrequency = 0.1;
+                    const speed = Date.now() / 300;
 
-                if (quoteFadeDirection === -1) {
-                    quoteAlpha -= fadeSpeed;
-                    if (quoteAlpha <= 0) {
-                        quoteAlpha = 0;
-                        if (nextQuote) {
-                            currentQuote = nextQuote;
-                            nextQuote = null;
-                        }
-                        quoteFadeDirection = 1;
+                    ctx.font = `bold ${quoteFontSize}px 'Roboto Mono', monospace`;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${0.4 * quoteAlpha * fadeAlpha})`;
+                    let x = width / 2 - (ctx.measureText(currentQuote).width / 2);
+
+                    for (let i = 0; i < currentQuote.length; i++) {
+                        const letter = currentQuote[i];
+                        const charWidth = ctx.measureText(letter).width;
+                        const y = baseY + Math.sin(speed + i * waveFrequency) * waveAmplitude;
+                        ctx.fillText(letter, x, y + 100);
+                        x += charWidth;
                     }
-                } else if (quoteFadeDirection === 1) {
-                    quoteAlpha += fadeSpeed;
-                    if (quoteAlpha >= 1) {
-                        quoteAlpha = 1;
-                        quoteFadeDirection = 0;
-                    }
-                }
-
-                const quoteFontSize = fontSize * 0.25;
-                const baseY = height / 2 + fontSize * 0.7;
-                const waveAmplitude = quoteFontSize * 0.8;
-                const waveFrequency = 0.1;
-                const speed = Date.now() / 300;
-
-                ctx.font = `bold ${quoteFontSize}px 'Roboto Mono', monospace`;
-                ctx.fillStyle = `rgba(255, 255, 255, ${0.4 * quoteAlpha})`;
-                let x = width / 2 - (ctx.measureText(currentQuote).width / 2);
-
-                for (let i = 0; i < currentQuote.length; i++) {
-                    const letter = currentQuote[i];
-                    const charWidth = ctx.measureText(letter).width;
-                    const y = baseY + Math.sin(speed + i * waveFrequency) * waveAmplitude;
-                    ctx.fillText(letter, x, y + 100);
-                    x += charWidth;
                 }
 
                 requestAnimationFrame(draw);
