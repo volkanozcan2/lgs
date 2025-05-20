@@ -20,13 +20,71 @@
         canvas {
             display: block;
         }
+
+        #noiseToggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 18px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid white;
+            border-radius: 6px;
+            cursor: pointer;
+            z-index: 100;
+        }
     </style>
 </head>
 
 <body>
     <canvas id="canvas"></canvas>
+    <button id="noiseToggle">Kahverengi Gürültü</button>
 
     <script>
+        // Brown noise generator
+        let audioCtx;
+        let brownNoise;
+        let lowPassFilter;
+        let playing = false;
+
+        function createBrownNoise(audioCtx) {
+            const bufferSize = 4096;
+            const noise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+            let lastOut = 0.0;
+
+            noise.onaudioprocess = function (e) {
+                const output = e.outputBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    output[i] = (lastOut + 0.01 * white) / 1.01;
+                    lastOut = output[i];
+                    output[i] *= 5.0;
+                }
+            };
+
+            return noise;
+        }
+
+        document.getElementById('noiseToggle').addEventListener('click', () => {
+            if (!playing) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                brownNoise = createBrownNoise(audioCtx);
+                lowPassFilter = audioCtx.createBiquadFilter();
+                lowPassFilter.type = "lowpass";
+                lowPassFilter.frequency.value = 200;
+                lowPassFilter.Q.value = 0.7;
+                brownNoise.connect(lowPassFilter);
+                lowPassFilter.connect(audioCtx.destination);
+                playing = true;
+            } else {
+                brownNoise.disconnect();
+                lowPassFilter.disconnect();
+                audioCtx.close();
+                playing = false;
+            }
+        });
         (() => {
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
