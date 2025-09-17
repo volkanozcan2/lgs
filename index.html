@@ -1,372 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="tr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LGS SAYACI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poetsen+One&family=Roboto+Mono:wght@700&display=swap"
-        rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14 Haziran 2026 Geri Sayım</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        html,
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: black;
-            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden; /* Kaydırma çubuklarını gizle */
+        }
+        .motto-text {
+            transition: opacity 1.5s ease-in-out;
         }
 
-        canvas {
-            display: block;
-        }
-
-        #noiseToggle {
+        /* Yıldız Tüneli CSS'i */
+        .stars-container {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 12px 18px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 14px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid white;
-            border-radius: 6px;
-            cursor: pointer;
-            z-index: 100;
-            visibility: hidden
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d1117; /* Koyu arka plan */
+            perspective: 600px;
+            z-index: -1;
+        }
+        .stars {
+            width: 100%;
+            height: 100%;
+            /* Farklı boyut ve hızlarda yıldız katmanları */
+            background-image: 
+                radial-gradient(2px 2px at 50% 50%, rgba(255, 255, 255, 0.8), transparent 2px),
+                radial-gradient(3px 3px at 50% 50%, rgba(255, 255, 255, 0.6), transparent 3px),
+                radial-gradient(4px 4px at 50% 50%, rgba(255, 255, 255, 0.4), transparent 4px);
+            background-size: 50px 50px, 150px 150px, 300px 300px;
+            animation: move-stars 10s linear infinite;
+        }
+
+        @keyframes move-stars {
+            from {
+                background-position: 0 0, 0 0, 0 0;
+                transform: translateZ(-200px);
+            }
+            to {
+                background-position: 500px 500px, 1500px 1500px, 3000px 3000px;
+                transform: translateZ(2000px);
+            }
         }
     </style>
 </head>
+<body class="bg-gray-100 text-slate-800 flex items-center justify-center min-h-screen p-4 relative">
 
-<body>
-    <canvas id="canvas"></canvas>
-    <button id="noiseToggle">Kahverengi Gürültü</button>
+    <!-- Yıldız tüneli arka planı -->
+    <div class="stars-container">
+        <div class="stars"></div>
+    </div>
+
+    <!-- Ana içerik konteyneri -->
+    <div class="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl text-center max-w-4xl w-full relative z-10">
+        <h1 class="text-4xl sm:text-5xl font-bold text-blue-600 mb-8 tracking-wide">
+            Büyük Gün Yaklaşıyor...
+        </h1>
+
+        <!-- Geri sayım sayacı -->
+        <div id="countdown" class="flex justify-center flex-wrap gap-4 sm:gap-6 lg:gap-8 mb-12">
+            <div class="flex flex-col items-center bg-gray-200 p-4 rounded-xl shadow-lg w-28 sm:w-32">
+                <span id="days" class="text-5xl sm:text-6xl font-bold text-orange-600">0</span>
+                <span class="text-xs sm:text-sm mt-2 font-medium uppercase tracking-wider text-slate-600">Gün</span>
+            </div>
+            <div class="flex flex-col items-center bg-gray-200 p-4 rounded-xl shadow-lg w-28 sm:w-32">
+                <span id="hours" class="text-5xl sm:text-6xl font-bold text-orange-600">0</span>
+                <span class="text-xs sm:text-sm mt-2 font-medium uppercase tracking-wider text-slate-600">Saat</span>
+            </div>
+            <div class="flex flex-col items-center bg-gray-200 p-4 rounded-xl shadow-lg w-28 sm:w-32">
+                <span id="minutes" class="text-5xl sm:text-6xl font-bold text-orange-600">0</span>
+                <span class="text-xs sm:text-sm mt-2 font-medium uppercase tracking-wider text-slate-600">Dakika</span>
+            </div>
+            <div class="flex flex-col items-center bg-gray-200 p-4 rounded-xl shadow-lg w-28 sm:w-32">
+                <span id="seconds" class="text-5xl sm:text-6xl font-bold text-orange-600">0</span>
+                <span class="text-xs sm:text-sm mt-2 font-medium uppercase tracking-wider text-slate-600">Saniye</span>
+            </div>
+        </div>
+
+        <!-- Motivasyonel sözler -->
+        <div id="motto-container" class="min-h-[6rem] flex items-center justify-center p-4">
+            <p id="motto-text" class="motto-text text-xl sm:text-2xl italic font-light text-slate-700 opacity-0"></p>
+        </div>
+    </div>
 
     <script>
-        // Brown noise generator
-        let audioCtx;
-        let brownNoise;
-        let lowPassFilter;
-        let playing = false;
+        // Hedef tarihi belirle: 14 Haziran 2026
+        const TARGET_DATE = new Date("2026-06-14T00:00:00").getTime();
+        const countdownElements = {
+            days: document.getElementById('days'),
+            hours: document.getElementById('hours'),
+            minutes: document.getElementById('minutes'),
+            seconds: document.getElementById('seconds')
+        };
+        const mottoElement = document.getElementById('motto-text');
 
-        function createBrownNoise(audioCtx) {
-            const bufferSize = 4096;
-            const noise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
-            let lastOut = 0.0;
+        // Sözler listesi
+        const mottos = [
+            "ÇOK ÇALIŞ KAZAN U.G",
+            "ÇALIŞIRSAN YAPARSIN E.A",
+            "HOCAM AKLIMA GELMEDİKİ Z.Ç",
+            "ŞİMDİ YORULUYORSUN AMA O GÜN KENDİNLE GURUR DUYACAKSIN G.N",
+            "KENDİNE İNANMAK BAŞARMANIN YARISIDIR Ö.K51",
+            "BİSMİLLAHİRRAHMANİRRAHİM D.T 01",
+            "ÇALIŞINCA OLUYOR A.Y 28",
+            "EŞŞEK GİBİ ÇALIŞ ASLAN GİBİ YAŞA S.B.D 28",
+            "GEÇ KALKAN ZARARLA OTURUR M.G",
+            "ÇALIŞ ÇÜNKÜ SENİ KİMSE KURTARMIYACAK A.S.M",
+            "BAŞARANA KADAR DEVAM ET S.A",
+            "ÇALIŞKAN İNSAN DAİMA HEDEFİNE ULAŞIR N.B",
+            "BU SAVAŞTA İLK ADIMI SEN ATMALISIN U.H.O 61",
+            "TÜRKÇEYİ ÇOK ÇALIŞIRSAN İYİ OLUR Ö.F.M",
+            "PAÇAYI GÖRMEDEN DEREYİ SIVAMA Ö.D 06",
+            "ÖMER GİBİ ÇOK YAZARSAN YAPARSIN D.T.S",
+            "İSTEMEK DEĞİL ÇALIŞMAK KAZANDIRIR T.Y",
+            "SEN AKLINA KOYDUĞUN HERŞEYİ BAŞARIRSIN ÇÜNKÜ SENİN İNANILMAZ BİR GÜCÜN VAR E.T",
+            "ÇALIŞ... U.A",
+            "GÖKTE NE VAR E.Ç 27",
+            "HAYALLERİNİN PEŞİNDEN KOŞ D.Ş"
+        ];
+        let mottoIndex = 0;
 
-            noise.onaudioprocess = function (e) {
-                const output = e.outputBuffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    const white = Math.random() * 2 - 1;
-                    output[i] = (lastOut + 0.01 * white) / 1.01;
-                    lastOut = output[i];
-                    output[i] *= 5.0;
-                }
-            };
+        // Geri sayımı güncelleyen fonksiyon
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = TARGET_DATE - now;
 
-            return noise;
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // HTML elementlerini güncelle
+            countdownElements.days.innerHTML = days;
+            countdownElements.hours.innerHTML = hours;
+            countdownElements.minutes.innerHTML = minutes;
+            countdownElements.seconds.innerHTML = seconds;
+
+            // Eğer süre dolduysa
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                document.getElementById("countdown").innerHTML = `<span class="text-4xl font-bold text-orange-600">Zaman Doldu!</span>`;
+            }
         }
 
-        document.getElementById('noiseToggle').addEventListener('click', () => {
-            if (!playing) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                brownNoise = createBrownNoise(audioCtx);
-                lowPassFilter = audioCtx.createBiquadFilter();
-                lowPassFilter.type = "lowpass";
-                lowPassFilter.frequency.value = 200;
-                lowPassFilter.Q.value = 0.7;
-                brownNoise.connect(lowPassFilter);
-                lowPassFilter.connect(audioCtx.destination);
-                playing = true;
-            } else {
-                brownNoise.disconnect();
-                lowPassFilter.disconnect();
-                audioCtx.close();
-                playing = false;
-            }
-        });
-        (() => {
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
+        // Sözleri 5 saniye arayla değiştiren fonksiyon
+        function changeMotto() {
+            mottoElement.style.opacity = '0';
+            setTimeout(() => {
+                mottoElement.textContent = mottos[mottoIndex];
+                mottoElement.style.opacity = '1';
+                mottoIndex = (mottoIndex + 1) % mottos.length;
+            }, 1500); // CSS geçiş süresi kadar bekle
+        }
 
-            let width = canvas.width = window.innerWidth;
-            let height = canvas.height = window.innerHeight;
-
-            const numStars = 500;
-            const stars = [];
-
-            const quotes = [
-                "Her gün bir adım daha ileri gitmek seni hedefe yaklaştırır.",
-                "Bugün yaptığın, yarın olacağın kişiyi belirler.",
-                "Disiplin, başarının yakıtıdır.",
-                "Zor zamanlar, güçlü insanlar yaratır.",
-                "Kendine inandığın an başlarsın.",
-                "Başarı, hazır olanı bulur.",
-                "Hayallerini gerçekleştirmek için çalışmalısın.",
-                "Başarı,başaracağım diye başlayıp sonunda başardım diyebilenindir.",
-                "Başarı,kendine olan inancın ve azmin birleşimidir.",
-                "Hedefi olmayan gemiye hiçbir rüzgar yardım edemez.",
-                "Hiçbir şeyden vazgeçme çünkü sadece vazgeçenler kaybeder.",
-                "Kaybettiğinde değil vazgeçtiğinde yenilirsin.",
-                "Fırsatlar durup dururken karşıya çıkmaz,onları siz yaratırsınız.",
-                "İnanmak başarmanın yarısıdır ancak başarı da kazanmanın kendisidir",
-                "Işık saçmak için önce yanmak gerekir.",
-                "Rüyaları gerçekleştirmek için uyanmak gerekir.",
-                "İleriye bakmak gerekir, geçmişe değil.",
-                "En büyük keşif, her gün yeniden başlamanın özgürlüğüdür.",
-                "Başlamak için mükemmel olmak zorunda değilsin fakat mükemmel olmak için başlamalısın.",
-                "İmkansıza ulaşmanın tek yolu, onun mümkün olduğuna inanmaktır.",
-                "Büyük zaferler güçle değil, azimle kazanılır.",
-                "Hiçkimse başarı merdivenlerini elleri cebinde tırmanmamıştır.",
-                "Zorluklar, başarmanın gizli anahtarıdır.",
-                "Vazgeçtiğin anda, ne kadar yaklaştığını asla bilemezsin.",
-                "Hayal ettiğin sürece umut vardır.",
-                "Başarı, sabırlı olanların ödülüdür.",
-                "Küçük adımlar, büyük hayallerin temelidir.",
-                "Sınav sadece bilginin değil, inancın da sınavıdır.",
-                "Bugün ter dökersen, yarın gururla gülümseyeceksin.",
-                "Kendi rekorunu kır, başkalarıyla kıyaslama.",
-                "En karanlık an, aydınlığa en yakın olandır.",
-                "Her gün çalışmak, yarınlara güvenle bakmaktır.",
-                "Sınav geçer, ama çaban hep seninle kalır.",
-                "Yılmak yok, çünkü hedefin var.",
-                "Sadece çalışkanlar hayallerine ulaşır.",
-                "Emek, en sağlam başarı anahtarıdır.",
-                "Hayallerin kadar güçlüsün.",
-                "Yorgunluk geçer, başarı kalır.",
-                "İnanırsan yaparsın, çalışırsan kazanırsın.",
-                "Bugün yorulsan da, yarın mutlu olacaksın.",
-                "Her net, bir adım daha ileri demektir.",
-                "Başarısızlık, vazgeçtiğin yerde başlar.",
-                "Çalışmak seni yormaz, vazgeçmek yorar.",
-                "Sadece kendine inanman yeterli.",
-                "Azimle çalış, güvenle sınava gir.",
-                "Hayalin büyükse, çaban daha büyük olmalı.",
-                "İlk adım cesaret, son adım başarıdır.",
-                "Sabret, çünkü her sabah yeni bir şanstır.",
-                "Başarının sırrı devam etmektir.",
-                "Kendine yatırım yap, en karlı yatırım budur.",
-                "Çalışkan olmak, kazanmanın ilk şartıdır.",
-                "Vakit geçiyor, ama sen geçme hayalinden.",
-                "Zorlandığın yer, geliştiğin yerdir.",
-                "Bugünkü çaban, yarının zaferi olabilir.",
-                "Güçlü olmak demek hiç düşmemek değil, her seferinde kalkmaktır.",
-                "Hiçbir hedef ulaşılmaz değildir.",
-                "Korkma, denemek cesaret ister.",
-                "Her sabah yeni bir fırsattır.",
-                "Bilgin arttıkça, korkuların azalır.",
-                "Çalış, çünkü emeğin karşılıksız kalmaz.",
-                "Kendin için savaş, çünkü buna değersin.",
-                "Bugün attığın adımlar, geleceğini inşa eder.",
-                "Cesaretin varsa, yol hep bulunur.",
-                "İlerlemenin tek yolu, devam etmektir.",
-                "Bir net bile önemlidir.",
-                "Planla, çalış, başarı zaten gelir.",
-                "Pes etmek en kolay yol, ama sen kolayı seçme.",
-                "Hayal kurmak yetmez, çalışmak gerekir.",
-                "Her gün bir sayfa, sonunda bir kitap olur.",
-                "Ne kadar çalışırsan, o kadar özgürsün.",
-                "Unutma, bu bir maraton; sabır ve azim ister.",
-                "Gün gelir, çaban alkış olur.",
-                "Şimdi sıkı çalış, sonra rahat et.",
-                "Zirveye çıkmak için terlemek gerekir.",
-                "Yarın için, bugün emek ver.",
-                "Hayal ettiğin lise seni bekliyor.",
-                "Başarı; plan, azim ve sabrın birleşimidir.",
-                "Bugünün kararı, yarının sonucudur.",
-                "Korkma, denemekten çekinme.",
-                "Kendi potansiyelini fark et.",
-                "Zor olanı başarmak, seni özel kılar.",
-                "Güzel günler kolay gelmez.",
-                "Sınav bir engel değil, bir fırsattır.",
-                "Hedef koy, pes etme, ulaş.",
-                "Çalıştıkça kendine saygın artar.",
-                "Kazanmak, inanmakla başlar.",
-                "Bir gün değil, her gün çalış.",
-                "Sınav sadece bir durak, yol uzun.",
-                "Her soruda biraz daha güçlenirsin.",
-                "Şimdi gösterdiğin çaba, yarın senin hikayen olacak.",
-                "Hayat sen çalıştıkça kolaylaşır.",
-                "Zamanı değil, kendini yönet.",
-                "Her yanlış cevap, bir doğruya açılan kapıdır.",
-                "İnançla çalış, sonuç kendiliğinden gelir.",
-                "Kazanmak istiyorsan, konfor alanını terk et.",
-                "Küçük başarılar büyük zaferlere götürür.",
-                "Sabrın sonu her zaman başarıdır.",
-                "Zihnini değil, bahaneni yorma.",
-                "Yapabileceğine inan, zaten yolun yarısıdır.",
-                "Hiçbir emek boşa gitmez.",
-                "Geleceğini şekillendirmek senin elinde.",
-                "İmkansız sadece denemeyenler içindir.",
-                "Başarı, geçici değil kalıcıdır.",
-                "Etrafına değil, hedeflerine odaklan.",
-                "Sadece soru çözmekle değil, kendini aşmakla kazanılır.",
-                "İnandığın sürece güçlü kalırsın.",
-                "Zaman geçer, emek kalır.",
-                "Hayallerin için çalış, başkalarının değil.",
-                "Kazanmak, çalışmayı alışkanlık haline getirmektir.",
-                "Gücünü sınırla, sınırlarını değil.",
-                "İlk adımı at, gerisi gelir.",
-                "Zor günler, güçlü insanlar yaratır.",
-                "Kendine söz ver ve tut.",
-                "Her gün bir soru daha seni hedefe yaklaştırır.",
-                "Bugün zordur, ama yarın için gereklidir.",
-                "Hayat bir sınavsa, sen bu sınavı geçersin.",
-                "Başarı bir sonuç değil, bir süreçtir.",
-                "Ulaşmak istediğin yerin yolunu sen çizersin.",
-                "Başarı, küçük kararların toplamıdır.",
-                "Kararsızlık, ilerlemenin düşmanıdır.",
-                "Vazgeçme, çünkü başlayacak çok şeyin var.",
-                "Sen yeter ki iste, gerisi gelir.",
-                "Çalışmaya başlamak, yolun yarısıdır.",
-                "Azim, başarının görünmeyen yüzüdür.",
-                "Bugün attığın her adım seni geleceğe götürür."
-            ];
-            function getRandomQuote() {
-                return quotes[Math.floor(Math.random() * quotes.length)];
-            }
-
-            let currentQuote = getRandomQuote();
-            let nextQuote = null;
-            let quoteAlpha = 1;
-            let quoteFadeDirection = 0;
-            let lastQuoteChange = Date.now();
-
-            function changeQuote() {
-                nextQuote = getRandomQuote();
-                quoteFadeDirection = -1;
-            }
-
-            setInterval(changeQuote, 10000);
-
-            for (let i = 0; i < numStars; i++) {
-                const angle = Math.random() * 2 * Math.PI;
-                const radius = Math.sqrt(Math.random()) * Math.max(width, height) / 2;
-                const x = width / 2 + radius * Math.cos(angle);
-                const y = height / 2 + radius * Math.sin(angle);
-                stars.push({
-                    x: x,
-                    y: y,
-                    z: Math.random() * width,
-                    o: 0,
-                    r: Math.random() * 1.5 + 0.5,
-                    speed: Math.random() * 2 + 0.5,
-                    fadeIn: true
-                });
-            }
-
-            const targetDate = new Date('2026-06-06T09:30:00+03:00');
-
-            function getTimeRemaining() {
-                const now = new Date();
-                const total = targetDate - now;
-                const minutes = Math.floor((total / (1000 * 60)) % 60);
-                const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
-                const days = Math.floor(total / (1000 * 60 * 60 * 24));
-                return { total, days, hours, minutes };
-            }
-
-            let isClockMode = false;
-            let fadeAlpha = 1;
-
-            canvas.addEventListener('click', () => {
-                isClockMode = !isClockMode;
-            });
-
-            function draw() {
-                ctx.fillStyle = 'black';
-                ctx.fillRect(0, 0, width, height);
-
-                // Fade logic
-                if (isClockMode && fadeAlpha > 0) {
-                    fadeAlpha = Math.max(0, fadeAlpha - 0.05);
-                } else if (!isClockMode && fadeAlpha < 1) {
-                    fadeAlpha = Math.min(1, fadeAlpha + 0.05);
-                }
-
-                // Draw stars with fade
-                for (let i = 0; i < numStars; i++) {
-                    const star = stars[i];
-                    star.z -= star.speed;
-
-                    if (star.fadeIn && star.o < 1) {
-                        star.o += 0.01;
-                    }
-
-                    if (star.z <= 0) {
-                        const angle = Math.random() * 2 * Math.PI;
-                        const radius = Math.sqrt(Math.random()) * Math.max(width, height) / 2;
-                        star.x = width / 2 + radius * Math.cos(angle);
-                        star.y = height / 2 + radius * Math.sin(angle);
-                        star.z = width;
-                        star.o = 0;
-                        star.r = Math.random() * 1.5 + 0.5;
-                        star.speed = Math.random() * 2 + 0.5;
-                        star.fadeIn = true;
-                    }
-
-                    const k = 128.0 / star.z;
-                    const x = (star.x - width / 2) * k + width / 2;
-                    const y = (star.y - height / 2) * k + height / 2;
-
-                    if (x >= 0 && x < width && y >= 0 && y < height) {
-                        ctx.beginPath();
-                        ctx.arc(x, y, star.r, 0, 2 * Math.PI);
-                        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(star.o, 1) * fadeAlpha})`;
-                        ctx.fill();
-                    }
-                }
-
-                const time = getTimeRemaining();
-                const now = new Date();
-                const displayText = isClockMode ?
-                    `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}` :
-                    `${time.days}g ${time.hours}s ${time.minutes}d`;
-
-                const fontSize = Math.max(width * 0.08, height * 0.08);
-                ctx.font = `bold ${fontSize}px 'Roboto Mono', monospace`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                ctx.lineWidth = fontSize * 0.05;
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-                ctx.strokeText(displayText, width / 2, height / 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-                ctx.fillText(displayText, width / 2, height / 2);
-
-                // Draw quote with fade
-                if (!isClockMode || fadeAlpha > 0) {
-                    const quoteFontSize = fontSize * 0.25;
-                    const baseY = height / 2 + fontSize * 0.7;
-                    const waveAmplitude = quoteFontSize * 0.8;
-                    const waveFrequency = 0.1;
-                    const speed = Date.now() / 300;
-
-                    ctx.font = `bold ${quoteFontSize}px 'Roboto Mono', monospace`;
-                    ctx.fillStyle = `rgba(255, 255, 255, ${0.4 * quoteAlpha * fadeAlpha})`;
-                    let x = width / 2 - (ctx.measureText(currentQuote).width / 2);
-
-                    for (let i = 0; i < currentQuote.length; i++) {
-                        const letter = currentQuote[i];
-                        const charWidth = ctx.measureText(letter).width;
-                        const y = baseY + Math.sin(speed + i * waveFrequency) * waveAmplitude;
-                        ctx.fillText(letter, x, y + 100);
-                        x += charWidth;
-                    }
-                }
-
-                requestAnimationFrame(draw);
-            }
-
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            });
-
-            draw();
-        })();
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        setInterval(changeMotto, 5000);
+        changeMotto();
+        
     </script>
 </body>
-
 </html>
